@@ -52,11 +52,19 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
         }
     }
     public func getDeviceInfo() {}
+    
     public func connectDevice(_ device: HpsTerminalInfo) {
         if let wrapper = self.gmsWrapper {
             wrapper.connectDevice(device)
         }
     }
+    
+    public func disconnectDevice() {
+        if let wrapper = self.gmsWrapper {
+            wrapper.disconnect()
+        }
+    }
+    
     public func processTransactionWithRequest(_ builder: GMSBaseBuilder, withTransactionType transactionType: HpsTransactionType) {
         if let wrapper = self.gmsWrapper {
             wrapper.startTransaction(builder, withTransactionType: transactionType)
