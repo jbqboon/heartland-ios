@@ -31,6 +31,10 @@ public class GMSWrapper: NSObject {
     }
 
     // MARK: External
+    public func getDeviceInfo() -> HpsTerminalInfo? {
+        return selectedTerminal
+    }
+    
     public func searchDevices() {
         GMSManager.shared.search(delegate: self)
     }
@@ -138,7 +142,9 @@ extension GMSWrapper: ConnectionDelegate {
     // MARK: ConnectionDelegate
     public func onConnected(terminalInfo: TerminalInfo) {
         selectedTerminal = HpsTerminalInfo.init(fromTerminalInfo: terminalInfo)
-        delegate.deviceConnected()//(selectedTerminal)
+        if let terminal = selectedTerminal {
+            delegate.deviceConnected(terminal)
+        }
     }
 
     public func onDisconnected(terminalInfo: TerminalInfo) {
@@ -147,7 +153,9 @@ extension GMSWrapper: ConnectionDelegate {
     }
 
     public func configuringTerminal(state: TransactionState) {
-        delegate.deviceConnected()
+        if let terminal = selectedTerminal {
+            delegate.deviceConnected(terminal)
+        }
     }
 
     public func onError(error: ConnectionError) {
@@ -306,5 +314,6 @@ extension GMSWrapper: TerminalOTAManagerDelegate {
                                          type: GlobalMobileSDK.TerminalOTAUpdateType,
                                          message: String) {
         terminalOTADelegate?.onReturnSetTargetVersion(resultType: resultType, type: type, message: message)
+        delegate.onError(error as NSError);
     }
 }
