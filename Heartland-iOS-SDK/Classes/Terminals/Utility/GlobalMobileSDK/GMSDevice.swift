@@ -26,6 +26,9 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
         return nil
     }
     
+    private var entryModes: [EntryMode] = []
+    private var terminalType: TerminalType?
+    
     internal init(config: HpsConnectionConfig, entryModes: [EntryMode], terminalType: TerminalType) {
         super.init()
         self.gmsWrapper = .init(
@@ -34,6 +37,12 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
             entryModes: entryModes,
             terminalType: terminalType
         )
+    }
+    
+    public func updateConfig(_ config: HpsConnectionConfig) {
+        if let terminalType = terminalType {
+            self.gmsWrapper = .init(.fromHpsConnectionConfig(config), delegate: self, entryModes: entryModes, terminalType: terminalType)
+        }
     }
     
     public var peripherals: NSMutableArray {
