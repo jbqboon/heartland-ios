@@ -3,7 +3,7 @@ import GlobalMobileSDK
 
 @objc
 public protocol GMSDeviceDelegate {
-    func onConnected()
+    func onConnected(_ terminal: HpsTerminalInfo)
     func onDisconnected()
     func onError(_ deviceError: NSError)
     func onBluetoothDeviceList(_ peripherals: NSMutableArray)
