@@ -77,7 +77,7 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
 
     // mark: GMSClientAppDelegate
 
-    public func deviceConnected() {
+    public func deviceConnected(_ terminal: HpsTerminalInfo) {
         self.deviceDelegate?.onConnected() //:(HpsTerminalInfo *)terminalInfo];
     }
 

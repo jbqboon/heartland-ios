@@ -314,6 +314,5 @@ extension GMSWrapper: TerminalOTAManagerDelegate {
                                          type: GlobalMobileSDK.TerminalOTAUpdateType,
                                          message: String) {
         terminalOTADelegate?.onReturnSetTargetVersion(resultType: resultType, type: type, message: message)
-        delegate.onError(error as NSError);
     }
 }

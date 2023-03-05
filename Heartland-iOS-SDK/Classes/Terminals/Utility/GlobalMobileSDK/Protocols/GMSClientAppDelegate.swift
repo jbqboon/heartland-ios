@@ -4,7 +4,7 @@ import GlobalMobileSDK
 @objc
 public protocol GMSClientAppDelegate {
     func searchComplete()
-    func deviceConnected()
+    func deviceConnected(_ terminal: HpsTerminalInfo)
     func deviceDisconnected()
     func deviceFound(_ device: NSObject)
     func onStatus(_ status: HpsTransactionStatus)
