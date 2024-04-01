@@ -4,19 +4,8 @@ import Foundation
 public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
     public var gmsWrapper: GMSWrapper?
     public var deviceDelegate: GMSDeviceDelegate?
-    public weak var deviceScanObserver: GMSDeviceScanObserver?
     public var transactionDelegate: GMSTransactionDelegate?
-    public var targetTerminalId: UUID?
-    public private(set) var terminalsById = [UUID: HpsTerminalInfo]()
-    public var otaFirmwareUpdateDelegate: GMSDeviceFirmwareUpdateDelegate?
-    
-    public private(set) var isScanning = false {
-        didSet {
-            if oldValue != isScanning {
-                deviceScanObserver?.deviceDidUpdateScanState(to: isScanning)
-            }
-        }
-    }
+    public var peripherals = NSMutableArray()
     
     public var connectedDeviceInfo: HpsTerminalInfo? {
         if let wrapper = self.gmsWrapper {
@@ -31,6 +20,8 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
     
     internal init(config: HpsConnectionConfig, entryModes: [EntryMode], terminalType: TerminalType) {
         super.init()
+        self.terminalType = terminalType
+        self.entryModes = entryModes
         self.gmsWrapper = .init(
             .fromHpsConnectionConfig(config),
             delegate: self,
@@ -45,27 +36,23 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
         }
     }
     
-    public var peripherals: NSMutableArray {
-        NSMutableArray(array: Array(terminalsById.values))
-    }
-    
-    public var terminals: [HpsTerminalInfo] {
-        peripherals as? [HpsTerminalInfo] ?? []
+    public func initialize() {
+        self.scan()
     }
     
     public func scan() {
         if let wrapper = self.gmsWrapper {
-            isScanning = true
             wrapper.searchDevices()
         }
     }
-    
+
     public func stopScan() {
         if let wrapper = self.gmsWrapper {
             wrapper.cancelSearch()
         }
     }
     public func getDeviceInfo() {}
+    
     public func connectDevice(_ device: HpsTerminalInfo) {
         if let wrapper = self.gmsWrapper {
             wrapper.connectDevice(device)
@@ -93,11 +80,6 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
             wrapper.selectAID(aid: application)
         }
     }
-    public func cancelTransaction() {
-        if let wrapper = self.gmsWrapper {
-            wrapper.cancelTransaction()
-        }
-    }
 
     // mark: GMSClientAppDelegate
 
@@ -110,21 +92,11 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
     }
 
     public func searchComplete() {
-        targetTerminalId = nil
-        isScanning = false
         self.deviceDelegate?.onBluetoothDeviceList(self.peripherals)
     }
 
     public func deviceFound(_ device: NSObject) {
-        guard let terminal = device as? HpsTerminalInfo else {
-            return
-        }
-        
-        terminalsById[terminal.identifier] = terminal
-        
-        if targetTerminalId == terminal.identifier {
-            stopScan()
-        }
+        peripherals.add(device)
     }
 
     public func onStatus(_ status: HpsTransactionStatus) {
@@ -160,53 +132,6 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
     }
 
     public func onError(_ error: NSError) {
-        self.transactionDelegate?.onTransactionError(error)
-    }
-}
-
-// MARK: Firmware Update
-extension GMSDevice {
-    public func getAllVersionsForC2X() {
-        gmsWrapper?.terminalOTADelegate = self
-        gmsWrapper?.requestAvailableOTAVersionsListFor(type: .firmware)
-    }
-    
-    public func requestUpdateVersionForC2X() {
-        gmsWrapper?.terminalOTADelegate = self
-        gmsWrapper?.requestToStartUpdateFor(type: .firmware)
-    }
-    
-    public func requestTerminalVersionData() {
-        gmsWrapper?.terminalOTADelegate = self
-        gmsWrapper?.requestTerminalVersionData()
-    }
-    
-    public func setVersionDataFor(versionString: String) {
-        gmsWrapper?.terminalOTADelegate = self
-        gmsWrapper?.setVersionDataFor(versionString: versionString)
-    }
-}
-
-extension GMSDevice: GMSClientTerminalOTAManagerDelegate {
-    public func terminalVersionDetails(info: [AnyHashable : Any]?) {
-        otaFirmwareUpdateDelegate?.onTerminalVersionDetails(info: info)
-    }
-    
-    public func terminalOTAResult(resultType: GlobalMobileSDK.TerminalOTAResult,
-                                  info: [String : AnyObject]?, error: Error?) {
-        otaFirmwareUpdateDelegate?.terminalOTAResult(resultType: resultType, info: info, error: error)
-    }
-    
-    public func listOfVersionsFor(type: GlobalMobileSDK.TerminalOTAUpdateType, results: [Any]?) {
-        otaFirmwareUpdateDelegate?.listOfVersionsFor(results: results)
-    }
-    
-    public func otaUpdateProgress(percentage: Float) {
-        otaFirmwareUpdateDelegate?.otaUpdateProgress(percentage: percentage)
-    }
-    
-    public func onReturnSetTargetVersion(resultType: GlobalMobileSDK.TerminalOTAResult,
-                                         type: GlobalMobileSDK.TerminalOTAUpdateType, message: String) {
-        otaFirmwareUpdateDelegate?.onReturnSetTargetVersion(message: message)
+        self.transactionDelegate?.onError(error)
     }
 }
