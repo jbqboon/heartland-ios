@@ -17,6 +17,7 @@
 @property (nonatomic,strong) NSString *deviceResponseCode;
 
 @property (nonatomic,strong) NSString *deviceResponseMessage;
+@property (nonatomic,strong) NSString *responseCode;
 @property (nonatomic,strong) NSString *responseText;
 @property (nonatomic,strong) NSString *transactionId;
 @property (nonatomic,strong) NSString *terminalRefNumber;
@@ -46,6 +47,7 @@
 
 @property (nonatomic,strong) NSString *cardholderName;
 @property (nonatomic,strong) NSString *cardBin;
+@property (nonatomic,strong) NSString *programType;
 @property (nonatomic) bool cardPresent;
 @property (nonatomic,strong) NSString *expirationDate;
 @property (nonatomic,strong) NSDecimalNumber *tipAmount;
@@ -78,6 +80,9 @@
 @property (nonatomic,strong) NSString *clientTransactionId;
 @property (nonatomic,strong) NSString *transactionStatusInformation;
 @property (nonatomic,strong) NSString *cardType;
+@property (nonatomic,strong) NSString *cardBrandTransactionId;
+@property (nonatomic,strong) NSString *signatureData;
+@property (nonatomic,strong) NSString *surchargeFee;
 
 - (void) mapResponse:(id <HpaResposeInterface>) response;
 // @todo
