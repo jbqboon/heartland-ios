@@ -117,10 +117,6 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
         self.deviceDelegate?.onConnected(terminal) //:(HpsTerminalInfo *)terminalInfo];
     }
 
-    public func deviceConnected() {
-        deviceDelegate?.onConnected() //: (HpsTerminalInfo *)terminalInfo];
-    }
-
     public func deviceDisconnected() {
         deviceDelegate?.onDisconnected()
     }
