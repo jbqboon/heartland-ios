@@ -31,14 +31,11 @@ public class GMSWrapper: NSObject {
     }
 
     // MARK: External
-<<<<<<< HEAD
+
     public func getDeviceInfo() -> HpsTerminalInfo? {
         return selectedTerminal
     }
     
-=======
-
->>>>>>> upstream/master
     public func searchDevices() {
         GMSManager.shared.search(delegate: self)
     }
@@ -177,13 +174,10 @@ extension GMSWrapper: ConnectionDelegate {
 
     public func onConnected(terminalInfo: TerminalInfo) {
         selectedTerminal = HpsTerminalInfo(fromTerminalInfo: terminalInfo)
-
+        
         if let terminal = selectedTerminal {
             delegate.deviceConnected(terminal)
-            return
         }
-
-        delegate.deviceConnected() // (selectedTerminal)
     }
 
     public func onDisconnected(terminalInfo _: TerminalInfo) {
@@ -191,13 +185,10 @@ extension GMSWrapper: ConnectionDelegate {
         delegate.deviceDisconnected()
     }
 
-    public func configuringTerminal(_ state: TransactionState) {
+    public func configuringTerminal(state: TransactionState) {
         if let terminal = selectedTerminal {
             delegate.deviceConnected(terminal)
-            return
         }
-
-        delegate.deviceConnected()
     }
 
     public func onError(error: ConnectionError) {
