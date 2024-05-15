@@ -18,8 +18,19 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
             }
         }
     }
-
-    internal init(config: HpsConnectionConfig, entryModes: [EntryMode], terminalType: TerminalType) {
+    
+    public var connectedDeviceInfo: HpsTerminalInfo? {
+        if let wrapper = self.gmsWrapper {
+            return wrapper.getDeviceInfo()
+        }
+        
+        return nil
+    }
+    
+    private var entryModes: [EntryMode] = []
+    private var terminalType: TerminalType?
+    
+    internal  init(config: HpsConnectionConfig, entryModes: [EntryMode], terminalType: TerminalType) {
         super.init()
         gmsWrapper = .init(
             .fromHpsConnectionConfig(config),
@@ -28,7 +39,13 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
             terminalType: terminalType
         )
     }
-
+    
+    public func updateConfig(_ config: HpsConnectionConfig) {
+        if let terminalType = terminalType {
+            self.gmsWrapper = .init(.fromHpsConnectionConfig(config), delegate: self, entryModes: entryModes, terminalType: terminalType)
+        }
+    }
+    
     public var peripherals: NSMutableArray {
         NSMutableArray(array: Array(terminalsById.values))
     }
@@ -56,7 +73,13 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
             wrapper.connectDevice(device)
         }
     }
-
+    
+    public func disconnectDevice() {
+        if let wrapper = self.gmsWrapper {
+            wrapper.disconnect()
+        }
+    }
+    
     public func processTransactionWithRequest(_ builder: GMSBaseBuilder, withTransactionType transactionType: HpsTransactionType) {
         if let wrapper = gmsWrapper {
             
