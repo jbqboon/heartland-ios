@@ -31,6 +31,8 @@ public class GMSWrapper: NSObject {
     }
 
     // MARK: External
+	
+		/// External: Get terminal info from selected terminal
 		public func getDeviceInfo() -> HpsTerminalInfo? {
 				return selectedTerminal
 		}
