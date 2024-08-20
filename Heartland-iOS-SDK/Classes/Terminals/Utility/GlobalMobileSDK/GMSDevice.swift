@@ -61,6 +61,13 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
             wrapper.connectDevice(device)
         }
     }
+	
+		/// External: Disconnect device
+		public func disconnectDevice() {
+				if let wrapper = gmsWrapper {
+						wrapper.disconnect()
+				}
+		}
 
     public func processTransactionWithRequest(_ builder: GMSBaseBuilder, withTransactionType transactionType: HpsTransactionType) {
         if let wrapper = gmsWrapper {
