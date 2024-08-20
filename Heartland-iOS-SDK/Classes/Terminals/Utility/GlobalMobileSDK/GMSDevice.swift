@@ -10,6 +10,9 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
     public var targetTerminalId: UUID?
     public private(set) var terminalsById = [UUID: HpsTerminalInfo]()
     public var otaFirmwareUpdateDelegate: GMSDeviceFirmwareUpdateDelegate?
+	
+		private var entryModes: [EntryMode] = []
+		private var terminalType: TerminalType?
 
     public private(set) var isScanning = false {
         didSet {
@@ -26,6 +29,10 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
 
     internal init(config: HpsConnectionConfig, entryModes: [EntryMode], terminalType: TerminalType) {
         super.init()
+			
+				self.entryModes = entryModes
+				self.terminalType = terminalType
+			
         gmsWrapper = .init(
             .fromHpsConnectionConfig(config),
             delegate: self,
@@ -33,6 +40,18 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
             terminalType: terminalType
         )
     }
+	
+		/// External: Update config once user has selected a device configuration during the device onboarding process
+		public func updateConfig(_ config: HpsConnectionConfig) {
+				if let terminalType {
+						gmsWrapper = .init(
+							.fromHpsConnectionConfig(config),
+							delegate: self,
+							entryModes: entryModes,
+							terminalType: terminalType
+						)
+				}
+		}
 
     public var peripherals: NSMutableArray {
         NSMutableArray(array: Array(terminalsById.values))
