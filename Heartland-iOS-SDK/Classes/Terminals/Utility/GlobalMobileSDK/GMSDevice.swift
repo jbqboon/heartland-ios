@@ -18,6 +18,11 @@ public class GMSDevice: NSObject, GMSClientAppDelegate, GMSDeviceInterface {
             }
         }
     }
+	
+		/// External: Get connected device info
+		public var connectedDeviceInfo: HpsTerminalInfo? {
+				return gmsWrapper?.getDeviceInfo()
+		}
 
     internal init(config: HpsConnectionConfig, entryModes: [EntryMode], terminalType: TerminalType) {
         super.init()

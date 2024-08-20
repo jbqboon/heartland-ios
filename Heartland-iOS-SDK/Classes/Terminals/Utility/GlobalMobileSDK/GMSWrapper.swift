@@ -31,6 +31,9 @@ public class GMSWrapper: NSObject {
     }
 
     // MARK: External
+		public func getDeviceInfo() -> HpsTerminalInfo? {
+				return selectedTerminal
+		}
 
     public func searchDevices() {
         GMSManager.shared.search(delegate: self)
