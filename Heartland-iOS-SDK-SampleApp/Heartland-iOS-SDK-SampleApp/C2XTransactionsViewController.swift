@@ -20,7 +20,7 @@ enum MainTransaction {
 
 class C2XTransactionsViewController: UIViewController {
     // MARK: Outlets
-    
+    public let PorticoTransactionSurchargeAPIRequestTimeOut = "\n\n\nSurcharge eligibility was unable to be verified."
     @IBOutlet weak var labelStatus: UILabel!
     @IBOutlet weak var containerView: UIStackView!
     @IBOutlet weak var creditSaleButton: UIButton!
@@ -164,8 +164,8 @@ private extension C2XTransactionsViewController {
             builder.amount = amountNumber
             builder.allowPartialAuth = NSNumber(value: allowPartialAuthToggle.isOn)
             builder.cpcReq = true
-            builder.isSurchargeEnabled = false
             builder.allowDuplicates = true
+            builder.isSurchargeEnabled = true
             
             let autoSubstantiation = getHealthCareComponent()
             builder.autoSubstantiation = autoSubstantiation
@@ -203,10 +203,11 @@ private extension C2XTransactionsViewController {
             builder.amount = amountString
             builder.creditCard = card
             builder.address = address
+            builder.isSurchargeEnabled = true
             
             builder.allowPartialAuth = true
             builder.allowDuplicates = true
-            builder.isSurchargeEnabled = false
+            
             
             self.builder = builder
             builder.execute()
@@ -461,6 +462,12 @@ extension C2XTransactionsViewController: HpsC2xDeviceDelegate, GMSTransactionDel
             print(" Status response: \(responseStatus)")
         }
         
+        print(" Response: \(response)")
+        
+        if let surchargeRequested = response.surchargeRequested {
+            print(" Surcharge Requested: \(SurchargeEligibility(rawValue: Int(bitPattern: surchargeRequested))?.rawValue)")
+        }
+        
         if let responseTransactionId = response.transactionId {
             
             self.terminalRefNumber = response.terminalRefNumber
@@ -508,12 +515,12 @@ extension C2XTransactionsViewController: HpsC2xDeviceDelegate, GMSTransactionDel
             let okAction = UIAlertAction(title: "Accept", style: UIAlertAction.Style.default) {
                 UIAlertAction in
                 NSLog("OK Pressed")
-                self.device?.confirmSurcharge(builder)
+                self.device?.confirmSurcharge(true)
             }
             let cancelAction = UIAlertAction(title: "Decline", style: UIAlertAction.Style.cancel) {
                 UIAlertAction in
                 NSLog("Cancel Pressed")
-                self.device?.cancelTransaction()
+                self.device?.confirmSurcharge(false)
                 self.showProgress(false)
             }
             
@@ -655,6 +662,7 @@ private extension C2XTransactionsViewController {
         var issuerCode = ""
         var GWCode = ""
         var GWMSG = ""
+        var GWMSGSurcharge = ""
         
         switch status {
         case let .APPROVED(response):
@@ -674,11 +682,20 @@ private extension C2XTransactionsViewController {
             if let respText = response.responseText {
                 GWMSG = respText
             }
+            
+            if case response.surchargeRequested = UnsafeMutablePointer(bitPattern: SurchargeEligibility.U.rawValue) {
+                GWMSGSurcharge = PorticoTransactionSurchargeAPIRequestTimeOut
+            }
+            
             let surchargeFee = (Decimal(string: response.surchargeFee ?? "0") ?? 0) * 100
+            
             let surchargeAmount = NSDecimalNumber(string: response.surchargeAmount ?? "0")
-            messageResult = "Response: \nStatus: \(responseCode)\n Amount: \(String(format: "%.2f", response.approvedAmount.doubleValue))\nSurchargeAmount: \(String(format: "%.2f", surchargeAmount.doubleValue))\nSurchargeFee: \(surchargeFee)%\n Issuer Resp.: \(issuerCode)\n Issuer Auth Data: \(issuerMSG)\nGW Code: \(GWCode)\nGW MSG: \(GWMSG)"
+            
+            messageResult = "Response: \nStatus: \(responseCode)\n Amount: \(String(format: "%.2f", response.approvedAmount.doubleValue))\nSurchargeAmount: \(String(format: "%.2f", surchargeAmount.doubleValue))\nSurchargeFee: \(surchargeFee)%\n Issuer Resp.: \(issuerCode)\n Issuer Auth Data: \(issuerMSG)\nGW Code: \(GWCode)\nGW MSG: \(GWMSG) \(GWMSGSurcharge)"
+            
             isApproved = true
         case let .CANCELLED(response):
+            
             guard let deviceResponseMessage = response.deviceResponseMessage else { return }
             var issuerMSG = ""
             var authCode = ""

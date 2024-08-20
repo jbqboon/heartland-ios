@@ -1,6 +1,24 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.0.25 2024-08-09
+- iOS SDK: Surcharge Confirmation value improvement.
+
+## 2.0.24 2024-07-24
+- iOS SDK: Implement surchargeRequested parameter for integrators.
+
+## 2.0.23 2024-07-08
+- iOS SDK: Fixing tipAmount response for Tip Adjust transaction
+
+## 2.0.22 2024-06-06
+- iOS SDK: Fixing isSurchargeEnabled item for allow null
+
+## 2.0.21 2024-06-04
+- iOS SDK: Fixing the Pax Cancel Response
+
+## 2.0.20 2024-05-14
+- iOS SDK: Pax_Enable port 10010 for HTTP Cancel
+
 ## 2.0.19 2024-05-09
 - iOS SDK: Pax_Cancel Command on HTTP Mode
 - iOS SDK: Pay App New Sale and Refund Parameters
